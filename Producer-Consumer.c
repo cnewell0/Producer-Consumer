@@ -3,7 +3,7 @@ Cade Newell
 CPSC 346:02
  */
 
-#include "buffer.h"
+#include "producer-consumer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -13,7 +13,9 @@ CPSC 346:02
 
 buffer_item buffer[BUFFER_SIZE];
 /*define semaphores and mutex*/
-
+pthread_mutex_t mutex;
+sem_t empty;
+sem_t full;
 
 int insertPointer = 0, removePointer = 0;
 
@@ -23,14 +25,16 @@ void *consumer(void *param);
 int insert_item(buffer_item item)
 {
     /* Acquire Empty Semaphore */
-	
-	
+	sem_wait(&empty);
 	/* Acquire mutex lock to protect buffer */
+	pthread_mutex_lock(&mutex);
 	
-
-	/* Release mutex lock and full semaphore */
+    buffer[insertPointer++] = item;
+    insertPointer = insertPointer % 7;
+    /* Release mutex lock and full semaphore */
+    pthread_mutex_unlock(&mutex);
+    sem_post(&full);
 	
-
 	return 0;
 }
 
