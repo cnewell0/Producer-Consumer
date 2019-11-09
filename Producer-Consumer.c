@@ -67,16 +67,29 @@ int main(int argc, char *argv[])
 	}
 
 	/*call atoi to get arguments */
+	sleepTime = atoi(argv[1]);
+	producerThreads = atoi(argv[2]);
+	consumerThreads = atoi(argv[3]);
 
+	/* initializing the locks */
+	printf("pthread_mutex_init: %d\n",pthread_mutex_init(&mutex, NULL));
+	sem_init(&empty, 0, 1);
+	sem_init(&full, 0, 0);
  
-
 	/* Create the producer and consumer threads */
- 
 
-	for(j = 0; j < consumerThreads; j++)
-	{
- 
+	for(i = 0; i < producerThreads; i++){
+		pthread_t tid;
+		pthread_attr_t atr;
+		pthread_attr_init(&atr);
+		pthread_create(&tid, &atr, producer, NULL);
+	}
 
+	for(j = 0; j < consumerThreads; j++){
+		pthread_t tid;
+		pthread_attr_t atr;
+		pthread_attr_init(&atr);
+		pthread_create(&tid, &atr, consumer, NULL);
 	}
 
 	/* Sleep for user specified time */
@@ -86,24 +99,37 @@ int main(int argc, char *argv[])
 
 void *producer(void *param)
 {
-		 
+	buffer_item item;
+	int i;	 
 
 	while(TRUE)
 	{
+		i = rand() % 7;
+		sleep(i);
+		item = rand();
 
-
+		if (insert_item(item))
+			fprintf(stderr, "Error");
+		else 
+			printf("Producer produced %d \n", item);
 	}
-
 }
 
 void *consumer(void *param)
 {
+	buffer_item item;
+	int i;	
 	 
-	 
-
 	while(TRUE)
 	{
- 
+		i = rand() % 7;
+		sleep(i);
+		item = rand();
 
+		if (remove_item(item))
+			fprintf(stderr, "Error");
+		else 
+			printf("Consumer consumed %d \n", item);
+ 
 	}
 }
