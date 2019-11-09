@@ -41,13 +41,15 @@ int insert_item(buffer_item item)
 int remove_item(buffer_item *item)
 {
 	/* Acquire Full Semaphore */
-	 
-
+	sem_wait(&full);
 	/* Acquire mutex lock to protect buffer */
- 
+	pthread_mutex_lock(&mutex);
 
+	buffer[insertPointer--] = item;
+	insertPointer = insertPointer % 7;
 	/* Release mutex lock and empty semaphore */
-	 
+	pthread_mutex_unlock(&mutex);
+	sem_post(&empty);
 
 	return 0;
 }
